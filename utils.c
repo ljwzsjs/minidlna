@@ -403,6 +403,9 @@ is_playlist(const char * file)
 int
 is_album_art(const char * name)
 {
+    if( ends_with(name, ".cover.jpg") )
+        return 1;
+
 	struct album_art_name_s * album_art_name;
 
 	/* Check if this file name matches one of the default album art names */
