@@ -544,6 +544,7 @@ GetImageMetadata(const char *path, char *name)
 	char make[32], model[64] = {'\0'};
 	char b[1024];
 	struct stat file;
+	int64_t album_art = 0;
 	int64_t ret;
 	image_s *imsrc;
 	metadata_t m;
@@ -682,13 +683,15 @@ no_exifdata:
 		m.dlna_pn = strdup("JPEG_LRG");
 	xasprintf(&m.resolution, "%dx%d", width, height);
 
+	album_art = find_album_art(path,  NULL, 0);
+
 	ret = sql_exec(db, "INSERT into DETAILS"
 	                   " (PATH, TITLE, SIZE, TIMESTAMP, DATE, RESOLUTION,"
-	                    " ROTATION, THUMBNAIL, CREATOR, DLNA_PN, MIME) "
+	                    " ROTATION, THUMBNAIL, CREATOR, DLNA_PN, MIME, ALBUM_ART) "
 	                   "VALUES"
-	                   " (%Q, '%q', %lld, %ld, %Q, %Q, %Q, %d, %Q, %Q, %Q);",
+	                   " (%Q, '%q', %lld, %ld, %Q, %Q, %Q, %d, %Q, %Q, %Q, %lld);",
 	                   path, name, (long long)file.st_size, file.st_mtime, m.date, m.resolution,
-	                   m.rotation, thumb, m.creator, m.dlna_pn, m.mime);
+	                   m.rotation, thumb, m.creator, m.dlna_pn, m.mime, album_art);
 	if( ret != SQLITE_OK )
 	{
 		fprintf(stderr, "Error inserting details for '%s'!\n", path);
